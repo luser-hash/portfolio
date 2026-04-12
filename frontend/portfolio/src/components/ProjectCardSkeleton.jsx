@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectCardSkeleton = () => {
   return (
-    <Card className="h-full rounded-2xl">
+    <Card className="h-full rounded-2xl border-[var(--clr-border)] bg-[var(--clr-bg)]">
       <CardHeader className="space-y-3">
         <Skeleton className="h-5 w-2/3" />
         <Skeleton className="h-4 w-full" />

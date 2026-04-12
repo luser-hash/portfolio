@@ -14,9 +14,9 @@ const stack = [
 ];
 
 const stats = [
-  { value: "3+", label: "Years Building" },
-  { value: "20+", label: "Projects Shipped" },
-  { value: "5+", label: "MVPs Launched" },
+  { value: "1+", label: "Years Building" },
+  { value: "5+", label: "Projects Shipped" },
+  { value: "2+", label: "MVPs Launched" },
 ];
 
 const AboutPage = () => {

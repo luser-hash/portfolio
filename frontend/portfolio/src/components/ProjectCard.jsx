@@ -9,16 +9,48 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProjectStatusBadge from "@/components/ProjectStatusBadge";
+import projectImage from "@/assets/image.png";
+import featuredImage from "@/assets/feature-selection.png";
+import successfulImage from "@/assets/successful.png";
 
 const ProjectCard = ({ project }) => {
+  const isFeatured = project.featured;
+  const statusIcon =
+    project.status === "in_progress"
+      ? projectImage
+      : project.status === "completed"
+        ? successfulImage
+        : null;
+
   return (
-    <Card className="h-full rounded-2xl border-border/70 hover:shadow-lg transition-all duration-200">
+    <Card className="h-full rounded-2xl border-[var(--clr-border)] bg-[var(--clr-bg)] text-[#F8F8F8] transition-all duration-200 hover:shadow-lg">
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <ProjectStatusBadge status={project.status} />
-              {project.featured && <Badge variant="secondary">Featured</Badge>}
+            <div className="flex flex-wrap items-start gap-3">
+              <div className="flex flex-col items-center gap-2">
+                {statusIcon && (
+                  <img
+                    src={statusIcon}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-8 w-8 object-contain"
+                  />
+                )}
+                <ProjectStatusBadge status={project.status} />
+              </div>
+
+              {isFeatured && (
+                <div className="flex flex-col items-center gap-2">
+                  <img
+                    src={featuredImage}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-8 w-8 object-contain"
+                  />
+                  <Badge variant="secondary">Featured</Badge>
+                </div>
+              )}
             </div>
 
             <CardTitle className="text-xl leading-tight">

@@ -1,7 +1,92 @@
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProjectDetails } from "@/api/projectsAPi";
+import { getProjectDetails, getProjects } from "@/api/projectsAPi";
+import ChallengeSection from "@/components/project-details/ChallengeSection";
+import MoreCaseStudiesSection from "@/components/project-details/MoreCaseStudiesSection";
+import ProcessSection from "@/components/project-details/ProcessSection";
 import ProjectStatusBadge from "@/components/ProjectStatusBadge";
+import OverviewSection from "@/components/project-details/OverviewSection";
+import OutcomeSection from "@/components/project-details/OutcomeSection";
+import ProjectDetailsSidebar from "@/components/project-details/ProjectDetailsSidebar";
+import SolutionSection from "@/components/project-details/SolutionSection";
+import ProjectTextSection from "@/components/project-details/ProjectTextSection";
 import { useAsyncData } from "@/hooks/useAsyncData";
+
+const sectionLabels = {
+  overview: "Overview",
+  challenge: "Challenge",
+  process: "Process",
+  solution: "Solution",
+  outcome: "Outcome",
+};
+
+const sectionOrder = ["overview", "challenge", "process", "solution", "outcome"];
+
+const normalizeSectionContent = (value) =>
+  value
+    ?.replace(/^\s*[-#]+\s*/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim() || "";
+
+const getProjectSections = (project) => {
+  const description = project.description?.trim() || "";
+  const parsedSections = {};
+  const sectionPattern =
+    /(overview|challenge|process|solution|outcome)\s*:?\s*([\s\S]*?)(?=(?:^|\n)\s*(?:overview|challenge|process|solution|outcome)\s*:?\s*|\s*$)/gi;
+  let match;
+
+  while ((match = sectionPattern.exec(description)) !== null) {
+    const sectionKey = match[1].toLowerCase();
+    const sectionValue = normalizeSectionContent(match[2]);
+
+    if (sectionValue) {
+      parsedSections[sectionKey] = sectionValue;
+    }
+  }
+
+  const hasStructuredSections = Object.keys(parsedSections).length > 0;
+
+  return sectionOrder.map((key) => {
+    if (hasStructuredSections) {
+      return {
+        id: key,
+        title: sectionLabels[key],
+        content:
+          parsedSections[key] || "This part of the case study has not been documented yet.",
+      };
+    }
+
+    if (key === "overview") {
+      return {
+        id: key,
+        title: sectionLabels[key],
+        content: normalizeSectionContent(description || project.short_description),
+      };
+    }
+
+    if (key === "outcome") {
+      const outcomes = [
+        project.status && `Status: ${project.status.replace(/_/g, " ")}`,
+        project.category?.name && `Category: ${project.category.name}`,
+        project.skills?.length > 0 &&
+          `Core stack: ${project.skills.map((skill) => skill.name).join(", ")}`,
+      ].filter(Boolean);
+
+      return {
+        id: key,
+        title: sectionLabels[key],
+        content:
+          outcomes.join("\n") || "Project outcomes and follow-up notes have not been documented yet.",
+      };
+    }
+
+    return {
+      id: key,
+      title: sectionLabels[key],
+      content: "This part of the case study has not been documented yet.",
+    };
+  });
+};
 
 const ProjectDetailsPage = () => {
   const { slug } = useParams();
@@ -14,6 +99,63 @@ const ProjectDetailsPage = () => {
     initialData: null,
     watch: slug,
   });
+  const { data: allProjects } = useAsyncData(getProjects, {
+    initialData: [],
+    errorMessage: "Failed to load projects.",
+  });
+  const projectSections = useMemo(
+    () => (project ? getProjectSections(project) : []),
+    [project]
+  );
+  const [activeSectionId, setActiveSectionId] = useState("overview");
+  const activeSection =
+    projectSections.find((section) => section.id === activeSectionId) ||
+    projectSections[0] ||
+    null;
+  const activeSectionNumber = String(
+    projectSections.findIndex((section) => section.id === activeSection?.id) + 1
+  ).padStart(2, "0");
+  const overviewActionHref = project?.live_demo_link || project?.github_link || "";
+  const overviewActionLabel = project?.live_demo_link
+    ? "Visit Live Site"
+    : project?.github_link
+      ? "View Project"
+      : "Visit Live Site";
+  const adjacentProjects = useMemo(() => {
+    if (!project || allProjects.length < 2) {
+      return { previousProject: null, nextProject: null };
+    }
+
+    const currentIndex = allProjects.findIndex(
+      (currentProject) => currentProject.slug === project.slug
+    );
+
+    if (currentIndex === -1) {
+      return { previousProject: null, nextProject: null };
+    }
+
+    const previousIndex =
+      currentIndex === 0 ? allProjects.length - 1 : currentIndex - 1;
+    const nextIndex =
+      currentIndex === allProjects.length - 1 ? 0 : currentIndex + 1;
+
+    return {
+      previousProject: allProjects[previousIndex],
+      nextProject: allProjects[nextIndex],
+    };
+  }, [allProjects, project]);
+
+  useEffect(() => {
+    if (!projectSections.length) {
+      return;
+    }
+
+    setActiveSectionId((current) =>
+      projectSections.some((section) => section.id === current)
+        ? current
+        : projectSections[0].id
+    );
+  }, [projectSections]);
 
   if (loading) {
     return (
@@ -96,36 +238,71 @@ const ProjectDetailsPage = () => {
 
       {/* Body */}
       <div className="pd-body">
-        {/* Overview card */}
-        <div className="pd-overview-card">
-          <p className="about-card-label">
-            <span className="hello-line" /> Project Overview
-          </p>
-          <p className="pd-description">{project.description}</p>
-        </div>
+        <ProjectDetailsSidebar
+          sections={projectSections}
+          activeSectionId={activeSectionId}
+          onSectionSelect={setActiveSectionId}
+        />
 
-        {/* Links */}
-        {(project.github_link || project.live_demo_link) && (
-          <div className="pd-links">
-            {project.github_link && (
-              <a href={project.github_link} target="_blank" rel="noreferrer" className="btn-primary">
-                <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24" style={{marginRight: '0.5rem'}}>
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                </svg>
-                GitHub Repository
-              </a>
-            )}
-            {project.live_demo_link && (
-              <a href={project.live_demo_link} target="_blank" rel="noreferrer" className="btn-outline">
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{marginRight: '0.5rem'}}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                </svg>
-                Live Demo
-              </a>
-            )}
-          </div>
-        )}
+        <div className="pd-content">
+          {activeSection?.id === "overview" && (
+            <OverviewSection
+              project={project}
+              sectionTitle={activeSection.title}
+              sectionNumber={activeSectionNumber}
+              actionHref={overviewActionHref}
+              actionLabel={overviewActionLabel}
+            />
+          )}
+
+          {activeSection?.id === "challenge" && (
+            <ChallengeSection
+              sectionNumber={activeSectionNumber}
+              content={activeSection.content}
+            />
+          )}
+
+          {activeSection?.id === "process" && (
+            <ProcessSection
+              sectionNumber={activeSectionNumber}
+              content={activeSection.content}
+            />
+          )}
+
+          {activeSection?.id === "solution" && (
+            <SolutionSection
+              sectionNumber={activeSectionNumber}
+              content={activeSection.content}
+            />
+          )}
+
+          {activeSection?.id === "outcome" && (
+            <OutcomeSection
+              sectionNumber={activeSectionNumber}
+              content={activeSection.content}
+            />
+          )}
+
+          {activeSection && activeSection.id !== "overview" && (
+            activeSection.id !== "challenge" &&
+            activeSection.id !== "process" &&
+            activeSection.id !== "solution" &&
+            activeSection.id !== "outcome" && (
+            <ProjectTextSection
+              sectionId={activeSection.id}
+              sectionTitle={activeSection.title}
+              sectionNumber={activeSectionNumber}
+              content={activeSection.content}
+            />
+            )
+          )}
+        </div>
       </div>
+
+      <MoreCaseStudiesSection
+        previousProject={adjacentProjects.previousProject}
+        nextProject={adjacentProjects.nextProject}
+      />
     </div>
   );
 };

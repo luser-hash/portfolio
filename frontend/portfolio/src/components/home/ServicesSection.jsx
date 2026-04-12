@@ -44,7 +44,7 @@ const ServicesSection = () => {
         {services.map(({ description, image, title }) => (
           <div
             key={title}
-            className="rounded-2xl border border-[var(--clr-border)] bg-[var(--card-bg)] p-6 shadow-sm"
+            className="rounded-2xl border border-[var(--clr-border)] bg-[var(--card-bg)] p-6 text-[#F8F8F8] shadow-sm"
           >
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--clr-bg-chip)]">
               <img
