@@ -40,11 +40,9 @@ const ProjectCard = ({ project }) => {
       </CardHeader>
 
       <CardContent className="space-y-5">
-        <div>
-          <p className="text-sm text-muted-foreground mb-2">
-            {project.category?.name || "Uncategorized"}
-          </p>
-        </div>
+        <p className="mb-2 text-sm text-muted-foreground">
+          {project.category?.name || "Uncategorized"}
+        </p>
 
         <div className="flex flex-wrap gap-2">
           {project.skills?.map((skill) => (

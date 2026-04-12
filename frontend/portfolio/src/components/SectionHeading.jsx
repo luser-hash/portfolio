@@ -6,7 +6,7 @@ const SectionHeading = ({ eyebrow, title, description, align = "left" }) => {
           {eyebrow}
         </p>
       )}
-      <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
+      <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#F8F8F8] mb-3">
         {title}
       </h2>
       {description && (

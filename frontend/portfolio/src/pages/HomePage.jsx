@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getFeaturedProjects } from "@/api/projectsAPi";
 import ProjectCard from "@/components/ProjectCard";
@@ -7,26 +6,13 @@ import EmptyState from "@/components/EmptyState";
 import SkillsSection from "@/components/home/SkillsSection";
 import ServicesSection from "@/components/home/ServicesSection";
 import SectionHeading from "@/components/SectionHeading";
-import { Button } from "@/components/ui/button";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import heroPortrait from "@/assets/hero-portrait.png";
 
 const HomePage = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const data = await getFeaturedProjects();
-        setProjects(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+  const { data: projects, loading } = useAsyncData(getFeaturedProjects, {
+    initialData: [],
+  });
 
   return (
     <div className="home-root">
@@ -86,19 +72,20 @@ const HomePage = () => {
           </p>
 
           <div className="hero-actions">
-            <Link to="/projects">
-              <button className="btn-primary">Learn more</button>
+            <Link to="/projects" className="btn-primary">
+              Learn more
             </Link>
-            <Link to="/contact">
-              <button className="btn-outline">Contact Me</button>
+            <Link to="/contact" className="btn-outline">
+              Contact Me
             </Link>
           </div>
         </div>
 
-        {/* Hero 3D Illustration placeholder */}
-        <div className="hero-illustration">
-          <div className="avatar-blob" />
-        </div>
+        <img
+          src={heroPortrait}
+          alt="Portrait of Amiluzzaman Nafis"
+          className="hero-free-image"
+        />
 
         {/* Floating avatar badge top right */}
         <div className="avatar-badge">
@@ -116,16 +103,16 @@ const HomePage = () => {
             title="Projects that demonstrate how I build"
             description="Selected work across backend, full-stack web apps, and mobile product development."
           />
-          <Link to="/projects">
-            <button className="btn-outline-sm">See All Projects</button>
+          <Link to="/projects" className="btn-outline-sm">
+            See All Projects
           </Link>
         </div>
 
         {loading ? (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <ProjectCardSkeleton />
-            <ProjectCardSkeleton />
-            <ProjectCardSkeleton />
+            {Array.from({ length: 3 }, (_, index) => (
+              <ProjectCardSkeleton key={index} />
+            ))}
           </div>
         ) : projects.length === 0 ? (
           <EmptyState
@@ -156,8 +143,8 @@ const HomePage = () => {
               backend structure and polished frontend implementation.
             </p>
             <div className="pt-2">
-              <Link to="/contact">
-                <button className="btn-primary">Start a Conversation</button>
+              <Link to="/contact" className="btn-primary">
+                Start a Conversation
               </Link>
             </div>
           </div>

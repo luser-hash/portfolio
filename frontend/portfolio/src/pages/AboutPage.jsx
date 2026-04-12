@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const stack = [
   { name: "Python", icon: "🐍" },
   { name: "Django", icon: "🎸" },
@@ -104,9 +106,9 @@ const AboutPage = () => {
               about what you're building.
             </p>
             <div className="pt-2">
-              <a href="/contact">
-                <button className="btn-primary">Start a Conversation</button>
-              </a>
+              <Link to="/contact" className="btn-primary">
+                Start a Conversation
+              </Link>
             </div>
           </div>
         </div>

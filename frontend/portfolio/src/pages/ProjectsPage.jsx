@@ -1,29 +1,18 @@
-import { useEffect, useState } from "react";
 import { getProjects } from "@/api/projectsAPi";
 import ProjectCard from "@/components/ProjectCard";
 import ProjectCardSkeleton from "@/components/ProjectCardSkeleton";
 import EmptyState from "@/components/EmptyState";
-import SectionHeading from "@/components/SectionHeading";
+import { useAsyncData } from "@/hooks/useAsyncData";
 
 const ProjectsPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const data = await getProjects();
-        setProjects(data);
-      } catch (err) {
-        setError("Failed to load projects.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProjects();
-  }, []);
+  const {
+    data: projects,
+    error,
+    loading,
+  } = useAsyncData(getProjects, {
+    errorMessage: "Failed to load projects.",
+    initialData: [],
+  });
 
   return (
     <div className="projects-root">
