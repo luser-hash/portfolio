@@ -33,7 +33,7 @@ const services = [
 
 const ServicesSection = () => {
   return (
-    <section className="container mx-auto px-4 py-20">
+    <section className="site-content-section">
       <SectionHeading
         eyebrow="What I Build"
         title="Development services focused on real product needs"

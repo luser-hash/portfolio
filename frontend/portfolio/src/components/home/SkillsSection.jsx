@@ -30,7 +30,7 @@ const skillGroups = [
 
 const SkillsSection = () => {
   return (
-    <section className="container mx-auto px-4 py-20">
+    <section className="site-content-section">
       <SectionHeading
         eyebrow="Tech Stack"
         title="Technologies I use to build products"

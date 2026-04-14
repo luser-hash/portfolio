@@ -5,45 +5,25 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const solutionHighlights = [
-  {
-    title: "Streamlined Checkout",
-    description:
-      "Reduced the checkout process to a faster, clearer flow with smoother error handling and fewer distractions.",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Visual Navigation",
-    description:
-      "Improved browsing with clearer category structure, stronger hierarchy, and more discoverable navigation cues.",
-    icon: PanelsTopLeft,
-  },
-  {
-    title: "Real-time Inventory",
-    description:
-      "Surfaced availability signals and supporting product states to reduce confusion and improve purchase confidence.",
-    icon: Clock3,
-  },
-  {
-    title: "Personalization Engine",
-    description:
-      "Shaped a more relevant shopping journey with recommendation-driven content and context-aware product discovery.",
-    icon: Sparkles,
-  },
-];
-
 const defaultSolutionParagraphs = [
   "The final solution has not been documented yet.",
-  "Add solution notes to the project description to replace this fallback copy.",
+  "Add solution notes from admin to replace this fallback copy.",
 ];
+
+const highlightIcons = [ShoppingCart, PanelsTopLeft, Clock3, Sparkles];
 
 const SolutionSection = ({ content, sectionNumber }) => {
   const solutionParagraphs = content
     ? content
         .split(/\n{2,}/)
-        .map((paragraph) => paragraph.replace(/^\s*[-*]\s*/, "").trim())
+        .map((paragraph) => paragraph.trim())
         .filter(Boolean)
     : defaultSolutionParagraphs;
+  const solutionHighlights = solutionParagraphs.slice(0, 4).map((paragraph, index) => ({
+    title: `Solution ${String(index + 1).padStart(2, "0")}`,
+    description: paragraph.replace(/^\s*[-*]\s*/, ""),
+    icon: highlightIcons[index % highlightIcons.length],
+  }));
 
   return (
     <section

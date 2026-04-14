@@ -1,18 +1,16 @@
-import dashboardImage from "@/assets/dashboard.png";
-import learningHubPreview from "@/assets/learning-hub-preview.png";
-
 const defaultProcessParagraphs = [
   "The process for this project has not been documented yet.",
-  "Add process notes to the project description to replace this fallback copy.",
+  "Add process notes and supporting media from admin to replace this fallback copy.",
 ];
 
-const ProcessSection = ({ content, sectionNumber }) => {
+const ProcessSection = ({ content, images = [], sectionNumber }) => {
   const processParagraphs = content
     ? content
         .split(/\n{2,}/)
-        .map((paragraph) => paragraph.replace(/^\s*[-*]\s*/, "").trim())
+        .map((paragraph) => paragraph.trim())
         .filter(Boolean)
     : defaultProcessParagraphs;
+  const [supportImage, featureImage] = images;
 
   return (
     <section
@@ -34,19 +32,31 @@ const ProcessSection = ({ content, sectionNumber }) => {
 
       <div className="pd-process-media">
         <div className="pd-process-card pd-process-card-support">
-          <img
-            src={dashboardImage}
-            alt="Supporting process artifact"
-            className="pd-process-support-image"
-          />
+          {supportImage?.image ? (
+            <img
+              src={supportImage.image}
+              alt={supportImage.alt_text || supportImage.caption || "Supporting process artifact"}
+              className="pd-process-support-image"
+            />
+          ) : (
+            <div className="pd-visual-placeholder">
+              No supporting process image has been added yet.
+            </div>
+          )}
         </div>
 
         <div className="pd-process-card pd-process-card-feature">
-          <img
-            src={learningHubPreview}
-            alt="Project process preview"
-            className="pd-process-feature-image"
-          />
+          {featureImage?.image ? (
+            <img
+              src={featureImage.image}
+              alt={featureImage.alt_text || featureImage.caption || "Project process preview"}
+              className="pd-process-feature-image"
+            />
+          ) : (
+            <div className="pd-visual-placeholder">
+              Add a feature image to show the process outcome visually.
+            </div>
+          )}
         </div>
       </div>
     </section>

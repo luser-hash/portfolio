@@ -383,3 +383,8 @@ When adding a new feature, default to these rules:
 ## 15. Current Project Identity In One Sentence
 
 This codebase is a page-driven React portfolio with a dark warm-charcoal surface system, orange accent branding, gradient section cards, lightweight local state, CSS-first motion, and pragmatic component extraction rather than heavy abstraction.
+
+
+
+
+

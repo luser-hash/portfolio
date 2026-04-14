@@ -1,12 +1,28 @@
-import learningHubPreview from "@/assets/learning-hub-preview.png";
+const fallbackOverviewParagraphs = [
+  "This project overview has not been documented yet.",
+];
 
 const OverviewSection = ({
+  content,
   project,
   sectionTitle,
   sectionNumber,
   actionHref,
   actionLabel,
 }) => {
+  const overviewParagraphs = content
+    ? content
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean)
+    : fallbackOverviewParagraphs;
+  const previewImage = project.cover_image || project.images?.[0]?.image || "";
+  const previewAlt =
+    project.images?.find((image) => image.image === previewImage)?.alt_text ||
+    `${project.title} preview`;
+  const projectType =
+    project.project_type === "live_product" ? "Live product" : "Case study";
+
   return (
     <section
       className="pd-overview-card pd-active-panel"
@@ -17,11 +33,19 @@ const OverviewSection = ({
         {sectionTitle}
       </h2>
 
+      <div className="pd-process-copy">
+        {overviewParagraphs.map((paragraph) => (
+          <p key={paragraph} className="pd-description">
+            {paragraph}
+          </p>
+        ))}
+      </div>
+
       <div className="pd-meta-grid">
         <div className="pd-meta-card">
           <span className="pd-meta-label">Role</span>
           <span className="pd-meta-value">
-            {project.category?.name || "Project build"}
+            {project.role_label || project.category?.name || "Project build"}
           </span>
         </div>
         <div className="pd-meta-card">
@@ -41,7 +65,7 @@ const OverviewSection = ({
         <div className="pd-meta-card">
           <span className="pd-meta-label">Type</span>
           <span className="pd-meta-value">
-            {project.live_demo_link ? "Live product" : "Case study"}
+            {projectType}
           </span>
         </div>
       </div>
@@ -52,11 +76,17 @@ const OverviewSection = ({
         </div>
 
         <div className="pd-visual-frame">
-          <img
-            src={learningHubPreview}
-            alt={`${project.title} preview`}
-            className="pd-visual-image"
-          />
+          {previewImage ? (
+            <img
+              src={previewImage}
+              alt={previewAlt}
+              className="pd-visual-image"
+            />
+          ) : (
+            <div className="pd-visual-placeholder">
+              No preview image has been added for this project yet.
+            </div>
+          )}
         </div>
 
         <div className="pd-image-section-actions">

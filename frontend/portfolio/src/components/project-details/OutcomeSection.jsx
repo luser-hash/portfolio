@@ -6,17 +6,10 @@ const defaultOutcomeQuote =
 
 const defaultOutcomeAttribution = "Project Stakeholder";
 
-const OutcomeSection = ({ content, sectionNumber }) => {
-  const outcomeParagraphs = content
-    ? content
-        .split(/\n{2,}/)
-        .map((paragraph) => paragraph.replace(/^\s*[-*]\s*/, "").trim())
-        .filter(Boolean)
-    : [defaultOutcomeParagraph];
-
-  const outcomeSummary = outcomeParagraphs[0] || defaultOutcomeParagraph;
-  const outcomeQuote = outcomeParagraphs[1] || defaultOutcomeQuote;
-  const outcomeAttribution = outcomeParagraphs[2] || defaultOutcomeAttribution;
+const OutcomeSection = ({ summary, quote, attribution, sectionNumber }) => {
+  const outcomeSummary = summary || defaultOutcomeParagraph;
+  const outcomeQuote = quote || defaultOutcomeQuote;
+  const outcomeAttribution = attribution || defaultOutcomeAttribution;
 
   return (
     <section
@@ -30,14 +23,16 @@ const OutcomeSection = ({ content, sectionNumber }) => {
 
       <p className="pd-description">{outcomeSummary}</p>
 
-      <figure className="pd-outcome-quote-block">
-        <blockquote className="pd-outcome-quote">
-          "{outcomeQuote}"
-        </blockquote>
-        <figcaption className="pd-outcome-attribution">
-          - {outcomeAttribution}
-        </figcaption>
-      </figure>
+      {(quote || attribution) && (
+        <figure className="pd-outcome-quote-block">
+          <blockquote className="pd-outcome-quote">
+            "{outcomeQuote}"
+          </blockquote>
+          <figcaption className="pd-outcome-attribution">
+            - {outcomeAttribution}
+          </figcaption>
+        </figure>
+      )}
     </section>
   );
 };

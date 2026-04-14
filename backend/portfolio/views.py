@@ -30,7 +30,7 @@ class ProjectListView(ListAPIView):
     serializer_class = serializers.ProjectListSerializer
 
     def get_queryset(self):
-        queryset = models.Project.objects.select_related('category').prefetch_related('skills').all()
+        queryset = models.Project.objects.select_related('category').prefetch_related('skills', 'images').all()
 
         search = self.request.query_params.get('search', '').strip()
         category = self.request.query_params.get('category', '').strip()
@@ -51,11 +51,11 @@ class ProjectListView(ListAPIView):
 # Featured Project List View with optimized queries using select_related and prefetch_related
 class FeaturedProjectListView(ListAPIView):
     serializer_class = serializers.ProjectListSerializer
-    queryset = models.Project.objects.filter(featured=True).select_related('category').prefetch_related('skills')
+    queryset = models.Project.objects.filter(featured=True).select_related('category').prefetch_related('skills', 'images')
 
 
 # Project Detail View with optimized queries using select_related and prefetch_related
 class ProjectDetailView(RetrieveAPIView):
     serializer_class = serializers.ProjectDetailSerializer
-    queryset = models.Project.objects.select_related('category').prefetch_related('skills').all()
+    queryset = models.Project.objects.select_related('category').prefetch_related('skills', 'images').all()
     lookup_field = 'slug'
