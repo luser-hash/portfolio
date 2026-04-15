@@ -25,5 +25,6 @@ urlpatterns = [
     path('api/contact/', include('contact.urls')),
 ]
 
-if settings.DEBUG or getattr(settings, 'SERVE_MEDIA_FILES', False):
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# This portfolio is deployed as a simple Django service, so serve uploaded
+# media directly from Django in every environment.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
