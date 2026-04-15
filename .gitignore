@@ -1,2 +1,7 @@
 .agents/skills/neon-postgres/SKILL.md
 skills-lock.json
+backend/.env
+frontend/portfolio/.env
+backend/staticfiles/
+**/__pycache__/
+*.pyc
