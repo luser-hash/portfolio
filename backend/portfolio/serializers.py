@@ -1,7 +1,62 @@
 import re
+from pathlib import Path
 
+from django.conf import settings
 from rest_framework import serializers
 from . import models
+
+
+DJANGO_COLLISION_SUFFIX_PATTERN = re.compile(
+    r'^(?P<base>.+)_(?P<suffix>[A-Za-z0-9]{7})(?P<ext>\.[^.]+)$'
+)
+
+
+def resolve_existing_media_name(field_file):
+    storage = getattr(field_file, 'storage', None)
+    name = getattr(field_file, 'name', '')
+    if not storage or not name:
+        return None
+
+    try:
+        if storage.exists(name):
+            return name
+    except OSError:
+        return None
+
+    match = DJANGO_COLLISION_SUFFIX_PATTERN.match(name)
+    if not match:
+        return None
+
+    fallback_name = f"{match.group('base')}{match.group('ext')}"
+    try:
+        if storage.exists(fallback_name):
+            return fallback_name
+    except OSError:
+        return None
+
+    storage_location = getattr(storage, 'location', '')
+    if not storage_location:
+        return None
+
+    fallback_filename = Path(fallback_name).name
+    try:
+        media_root = Path(getattr(settings, 'MEDIA_ROOT', storage_location)).resolve()
+        candidates = [
+            path for path in media_root.rglob(fallback_filename)
+            if path.is_file()
+        ]
+    except OSError:
+        return None
+
+    if len(candidates) != 1:
+        return None
+
+    try:
+        return candidates[0].resolve().relative_to(media_root).as_posix()
+    except ValueError:
+        return None
+
+    return None
 
 
 def build_absolute_media_url(request, field_file):
@@ -9,19 +64,17 @@ def build_absolute_media_url(request, field_file):
         return None
 
     storage = getattr(field_file, 'storage', None)
-    name = getattr(field_file, 'name', '')
-    if storage and name:
-        try:
-            if not storage.exists(name):
-                return None
-        except OSError:
-            return None
+    resolved_name = resolve_existing_media_name(field_file)
+    if not storage or not resolved_name:
+        return None
+
+    media_url = storage.url(resolved_name)
 
     if request is None:
-        return field_file.url
+        return media_url
 
     try:
-        return request.build_absolute_uri(field_file.url)
+        return request.build_absolute_uri(media_url)
     except ValueError:
         return None
     return None
