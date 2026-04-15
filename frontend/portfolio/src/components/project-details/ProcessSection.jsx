@@ -1,3 +1,5 @@
+import SafeImage from "@/components/SafeImage";
+
 const defaultProcessParagraphs = [
   "The process for this project has not been documented yet.",
   "Add process notes and supporting media from admin to replace this fallback copy.",
@@ -33,10 +35,15 @@ const ProcessSection = ({ content, images = [], sectionNumber }) => {
       <div className="pd-process-media">
         <div className="pd-process-card pd-process-card-support">
           {supportImage?.image ? (
-            <img
+            <SafeImage
               src={supportImage.image}
               alt={supportImage.alt_text || supportImage.caption || "Supporting process artifact"}
               className="pd-process-support-image"
+              fallback={
+                <div className="pd-visual-placeholder">
+                  No supporting process image has been added yet.
+                </div>
+              }
             />
           ) : (
             <div className="pd-visual-placeholder">
@@ -47,10 +54,15 @@ const ProcessSection = ({ content, images = [], sectionNumber }) => {
 
         <div className="pd-process-card pd-process-card-feature">
           {featureImage?.image ? (
-            <img
+            <SafeImage
               src={featureImage.image}
               alt={featureImage.alt_text || featureImage.caption || "Project process preview"}
               className="pd-process-feature-image"
+              fallback={
+                <div className="pd-visual-placeholder">
+                  Add a feature image to show the process outcome visually.
+                </div>
+              }
             />
           ) : (
             <div className="pd-visual-placeholder">

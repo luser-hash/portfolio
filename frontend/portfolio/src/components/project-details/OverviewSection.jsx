@@ -1,3 +1,5 @@
+import SafeImage from "@/components/SafeImage";
+
 const fallbackOverviewParagraphs = [
   "This project overview has not been documented yet.",
 ];
@@ -77,10 +79,15 @@ const OverviewSection = ({
 
         <div className="pd-visual-frame">
           {previewImage ? (
-            <img
+            <SafeImage
               src={previewImage}
               alt={previewAlt}
               className="pd-visual-image"
+              fallback={
+                <div className="pd-visual-placeholder">
+                  No preview image has been added for this project yet.
+                </div>
+              }
             />
           ) : (
             <div className="pd-visual-placeholder">

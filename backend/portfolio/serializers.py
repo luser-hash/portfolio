@@ -5,8 +5,25 @@ from . import models
 
 
 def build_absolute_media_url(request, field_file):
-    if field_file and hasattr(field_file, 'url'):
+    if not field_file or not hasattr(field_file, 'url'):
+        return None
+
+    storage = getattr(field_file, 'storage', None)
+    name = getattr(field_file, 'name', '')
+    if storage and name:
+        try:
+            if not storage.exists(name):
+                return None
+        except OSError:
+            return None
+
+    if request is None:
+        return field_file.url
+
+    try:
         return request.build_absolute_uri(field_file.url)
+    except ValueError:
+        return None
     return None
 
 

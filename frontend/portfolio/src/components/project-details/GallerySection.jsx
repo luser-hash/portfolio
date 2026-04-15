@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SafeImage from "@/components/SafeImage";
 
 const GallerySection = ({ images = [], sectionNumber }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -53,10 +54,15 @@ const GallerySection = ({ images = [], sectionNumber }) => {
                   }`}
                   aria-hidden={index !== activeIndex}
                 >
-                  <img
+                  <SafeImage
                     src={image.image}
                     alt={image.alt_text || image.caption || "Project gallery image"}
                     className="pd-gallery-image"
+                    fallback={
+                      <div className="pd-visual-placeholder pd-gallery-placeholder">
+                        This gallery image is not available right now.
+                      </div>
+                    }
                   />
                 </figure>
               ))}
@@ -106,11 +112,17 @@ const GallerySection = ({ images = [], sectionNumber }) => {
                     onClick={() => setActiveIndex(index)}
                     aria-label={`Show image ${index + 1}`}
                   >
-                    <img
+                    <SafeImage
                       src={image.image}
                       alt=""
                       aria-hidden="true"
                       className="pd-gallery-thumb-image"
+                      fallback={
+                        <span
+                          className="pd-gallery-thumb-image"
+                          aria-hidden="true"
+                        />
+                      }
                     />
                   </button>
                 ))}

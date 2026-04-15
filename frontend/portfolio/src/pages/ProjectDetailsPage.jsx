@@ -68,13 +68,21 @@ const ProjectDetailsPage = () => {
     : project?.github_link
       ? "View Project"
       : "Visit Live Site";
-  const processImages = useMemo(
-    () => (project?.images || []).filter((image) => image.kind === "process"),
+  const projectImages = useMemo(
+    () => (project?.images || []).filter((image) => image?.image),
     [project]
   );
+  const projectWithValidImages = useMemo(
+    () => (project ? { ...project, images: projectImages } : null),
+    [project, projectImages]
+  );
+  const processImages = useMemo(
+    () => projectImages.filter((image) => image.kind === "process"),
+    [projectImages]
+  );
   const galleryImages = useMemo(
-    () => (project?.images || []).filter((image) => image.kind === "gallery"),
-    [project]
+    () => projectImages.filter((image) => image.kind === "gallery"),
+    [projectImages]
   );
 
   useEffect(() => {
@@ -180,8 +188,8 @@ const ProjectDetailsPage = () => {
           <div className="pd-content">
             {activeSection?.id === "overview" && (
               <OverviewSection
-                project={project}
-                content={project.overview_text}
+                project={projectWithValidImages}
+                content={projectWithValidImages.overview_text}
                 sectionTitle={activeSection.title}
                 sectionNumber={activeSectionNumber}
                 actionHref={overviewActionHref}
@@ -199,14 +207,14 @@ const ProjectDetailsPage = () => {
           {activeSection?.id === "gallery" && (
             <GallerySection
               sectionNumber={activeSectionNumber}
-              images={galleryImages.length > 0 ? galleryImages : project.images || []}
+              images={galleryImages.length > 0 ? galleryImages : projectImages}
             />
           )}
 
           {activeSection?.id === "process" && (
             <ProcessSection
                 sectionNumber={activeSectionNumber}
-                content={project.process_text}
+                content={projectWithValidImages.process_text}
                 images={processImages.length > 0 ? processImages : galleryImages}
               />
             )}
@@ -214,16 +222,16 @@ const ProjectDetailsPage = () => {
             {activeSection?.id === "solution" && (
               <SolutionSection
                 sectionNumber={activeSectionNumber}
-                content={project.solution_text}
+                content={projectWithValidImages.solution_text}
               />
             )}
 
             {activeSection?.id === "outcome" && (
               <OutcomeSection
                 sectionNumber={activeSectionNumber}
-                summary={project.outcome_summary}
-                quote={project.outcome_quote}
-                attribution={project.outcome_attribution}
+                summary={projectWithValidImages.outcome_summary}
+                quote={projectWithValidImages.outcome_quote}
+                attribution={projectWithValidImages.outcome_attribution}
               />
             )}
 
