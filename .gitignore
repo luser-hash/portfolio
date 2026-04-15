@@ -3,5 +3,7 @@ skills-lock.json
 backend/.env
 frontend/portfolio/.env
 backend/staticfiles/
+backend/media/*
+!backend/media/.gitkeep
 **/__pycache__/
 *.pyc

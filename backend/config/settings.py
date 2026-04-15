@@ -18,6 +18,8 @@ import dj_database_url
 
 load_dotenv()
 
+import cloudinary
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -62,6 +64,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
 ]
+
+CLOUDINARY_URL = os.getenv('CLOUDINARY_URL', '').strip()
+USE_CLOUDINARY_STORAGE = bool(CLOUDINARY_URL)
+CLOUDINARY_MEDIA_FOLDER = os.getenv('CLOUDINARY_MEDIA_FOLDER', 'portfolio').strip().strip('/')
+
+if USE_CLOUDINARY_STORAGE:
+    cloudinary.config(secure=True)
+    INSTALLED_APPS.append('cloudinary')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,7 +153,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = get_list_env(
     'CORS_ALLOWED_ORIGINS',
@@ -162,9 +171,29 @@ REST_FRAMEWORK = {
 
 
 # Media Files Setup
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/').rstrip('/') + '/'
+raw_media_root = os.getenv('MEDIA_ROOT', str(BASE_DIR / 'media'))
+MEDIA_ROOT = Path(raw_media_root).expanduser()
+if not MEDIA_ROOT.is_absolute():
+    MEDIA_ROOT = (BASE_DIR / MEDIA_ROOT).resolve()
+else:
+    MEDIA_ROOT = MEDIA_ROOT.resolve()
+if not USE_CLOUDINARY_STORAGE:
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 SERVE_MEDIA_FILES = get_bool_env('SERVE_MEDIA_FILES', True)
+
+STORAGES = {
+    'default': {
+        'BACKEND': (
+            'portfolio.storage.CloudinaryMediaStorage'
+            if USE_CLOUDINARY_STORAGE
+            else 'django.core.files.storage.FileSystemStorage'
+        ),
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

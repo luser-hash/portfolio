@@ -17,6 +17,9 @@ def resolve_existing_media_name(field_file):
     if not storage or not name:
         return None
 
+    if getattr(storage, 'remote_storage', False):
+        return name
+
     try:
         if storage.exists(name):
             return name
