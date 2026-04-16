@@ -2,7 +2,6 @@ import SafeImage from "@/components/SafeImage";
 
 const defaultProcessParagraphs = [
   "The process for this project has not been documented yet.",
-  "Add process notes and supporting media from admin to replace this fallback copy.",
 ];
 
 const ProcessSection = ({ content, images = [], sectionNumber }) => {
